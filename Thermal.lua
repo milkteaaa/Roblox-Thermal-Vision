@@ -7,8 +7,10 @@ inst:Destroy()
 	
 
 local ScreenGui = Instance.new("ScreenGui")
-local TextButton = Instance.new("TextButton")
 local Vision = Instance.new("Frame")
+local TextLabel = Instance.new("TextLabel")
+local TextLabel_2 = Instance.new("TextLabel")
+local UICorner = Instance.new("UICorner")
 local Tint = Instance.new("ColorCorrectionEffect", game.Lighting)
 local Thermal = false
 local isFPS = false
@@ -35,7 +37,7 @@ local Character = Client.Character or Client.CharacterAdded:Wait()
 local Head = Character:WaitForChild("Head") 
 
 local function OnRenderStepped()
-	if (Camera.CFrame.Position - Head.Position).Magnitude < 0.8 then
+	if (Head.CFrame.Position - Camera.CFrame.Position).Magnitude < 1 then
 		print("fps detected")
 		isFPS = true
 	end
@@ -48,14 +50,32 @@ ScreenGui.Parent = game.CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.IgnoreGuiInset = true
 
-TextButton.Parent = ScreenGui
-TextButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-TextButton.Position = UDim2.new(0.0384254903, 0, 0.0994152054, 0)
-TextButton.Size = UDim2.new(0, 200, 0, 50)
-TextButton.Font = Enum.Font.SourceSans
-TextButton.Text = "Activate Merc Thermal"
-TextButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-TextButton.TextSize = 14.000
+TextLabel.Parent = ScreenGui
+TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel.BackgroundTransparency = 1.000
+TextLabel.BorderSizePixel = 3
+TextLabel.Position = UDim2.new(0, 0, 0.902534127, 0)
+TextLabel.Size = UDim2.new(0, 200, 0, 50)
+TextLabel.Font = Enum.Font.RobotoMono
+TextLabel.Text = "Press \"T\" to activate thermal vision."
+TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TextLabel.TextSize = 14.000
+TextLabel.TextStrokeTransparency = 0.500
+TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+TextLabel.TextYAlignment = Enum.TextYAlignment.Bottom
+
+TextLabel_2.Parent = ScreenGui
+TextLabel_2.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+TextLabel_2.BackgroundTransparency = 0.200
+TextLabel_2.Position = UDim2.new(0.860356152, 0, 0.0350877196, 0)
+TextLabel_2.Size = UDim2.new(0, 133, 0, 23)
+TextLabel_2.Font = Enum.Font.RobotoMono
+TextLabel_2.Text = "SCAN TEAMMATES: ON"
+TextLabel_2.TextColor3 = Color3.fromRGB(221, 221, 221)
+TextLabel_2.TextSize = 14.000
+
+UICorner.CornerRadius = UDim.new(0, 5)
+UICorner.Parent = TextLabel_2
 
 Vision.Name = "Vision"
 Vision.Parent = ScreenGui
@@ -122,7 +142,7 @@ end
 RunService.Heartbeat:Connect(function()
 	if settings_tbl.ESP_Enabled then
 	 if isFPS == true then
-		for k,v in next, HeatTarget:GetPlayers() do 
+		for k,v in pairs(HeatTarget:GetPlayers()) do 
 				if v ~= Client then
 
 					if v.Character and
@@ -134,7 +154,7 @@ RunService.Heartbeat:Connect(function()
 
 							local char = v.Character 
 
-							for k,b in next, char:GetChildren() do 
+							for k,b in pairs(char:GetChildren()) do 
 
 								if b:IsA("BasePart") and 
 									b.Transparency ~= 1 then
@@ -191,7 +211,7 @@ RunService.Heartbeat:Connect(function()
 				end
 		end
 	else
-			for k,v in next, HeatTarget:GetPlayers() do 
+			for k,v in pairs(HeatTarget:GetPlayers()) do 
 				if v.Character and
 					v.Character:FindFirstChild("HumanoidRootPart") and 
 					v.Character:FindFirstChild("Humanoid") and 
@@ -201,7 +221,7 @@ RunService.Heartbeat:Connect(function()
 
 						local char = v.Character 
 
-						for k,b in next, char:GetChildren() do 
+						for k,b in pairs(char:GetChildren()) do 
 
 							if b:IsA("BasePart") and 
 								b.Transparency ~= 1 then
@@ -258,7 +278,7 @@ RunService.Heartbeat:Connect(function()
 	end
 	else 
 
-		for k,v in next, HeatTarget:GetPlayers() do 
+		for k,v in pairs(HeatTarget:GetPlayers()) do 
 
 			if
 				v.Character and 
@@ -279,13 +299,15 @@ end)
 -- Scripts:
 
 local function BHHY_fake_script() -- TextButton.LocalScript 
-	local script = Instance.new('LocalScript', TextButton)
-	script.Parent.MouseButton1Click:Connect(function()
+	local script = Instance.new('LocalScript', TextLabel)
+	game:GetService("UserInputService").InputBegan:connect(function(key)
+		if key.KeyCode == Enum.KeyCode.T then
 		if Thermal == false then
 			Thermal = true
 			settings_tbl.ESP_Enabled = Thermal
 			settings_tbl.Chams = Thermal
 			Tint.Enabled = true
+			TextLabel.Text = "Press \"V\" to disable teammate scanning."
 			local RunService = game:GetService("RunService")
 			local Textures = {
 				268592485,
@@ -324,7 +346,20 @@ local function BHHY_fake_script() -- TextButton.LocalScript
 				Thermal = false
 				settings_tbl.ESP_Enabled = Thermal
 				settings_tbl.Chams = Thermal
-				Tint.Enabled = false
+					Tint.Enabled = false
+					TextLabel.Text = "Press \"T\" to activate thermal vision."
+			end
+			end
+			end
+	end)
+	game:GetService("UserInputService").InputBegan:connect(function(k)
+		if k.KeyCode == Enum.KeyCode.V then
+			if settings_tbl.ESP_TeamCheck == false then
+				TextLabel_2.Text = "SCAN TEAMMATES: OFF"
+				settings_tbl.ESP_TeamCheck = true
+			else
+				TextLabel_2.Text = "SCAN TEAMMATES: ON"
+				settings_tbl.ESP_TeamCheck = false
 			end
 		end
 	end)
