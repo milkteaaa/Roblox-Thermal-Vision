@@ -2,15 +2,49 @@
 -- Version: 3.2
 
 -- Instances:
+local inst = game.CoreGui:FindFirstChild("MercThermal")
+inst:Destroy()
+	
 
 local ScreenGui = Instance.new("ScreenGui")
 local TextButton = Instance.new("TextButton")
 local Vision = Instance.new("Frame")
 local Tint = Instance.new("ColorCorrectionEffect", game.Lighting)
 local Thermal = false
---Properties:
+local isFPS = false
 
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+local HeatTarget = game:GetService("Players")
+local Client = HeatTarget.LocalPlayer 
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+
+-- retarded check if game is made by rolve
+if game.PlaceId == 286090429 then
+	isFPS = true
+	print('v')
+end
+
+if game.PlaceId == 301549746 then
+	isFPS = true
+	print('v')
+end
+
+
+-- another check if game is first person only
+local Character = Client.Character or Client.CharacterAdded:Wait() 
+local Head = Character:WaitForChild("Head") 
+
+local function OnRenderStepped()
+	if (Camera.CFrame.Position - Head.Position).Magnitude < 0.8 then
+		print("fps detected")
+		isFPS = true
+	end
+end
+
+
+--Properties:
+ScreenGui.Name = "MercThermal"
+ScreenGui.Parent = game.CoreGui
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.IgnoreGuiInset = true
 
@@ -55,10 +89,6 @@ local settings_tbl = {
 
 ]]--
 
-local HeatTarget = game:GetService("Players")
-local Client = HeatTarget.LocalPlayer 
-local RunService = game:GetService("RunService")
-
 local settings_tbl = {
 	ESP_Enabled = false,
 	ESP_TeamCheck = false,
@@ -90,10 +120,78 @@ function destroy_chams(char)
 end
 
 RunService.Heartbeat:Connect(function()
-
 	if settings_tbl.ESP_Enabled then
-
+	 if isFPS == true then
 		for k,v in next, HeatTarget:GetPlayers() do 
+				if v ~= Client then
+
+					if v.Character and
+						v.Character:FindFirstChild("HumanoidRootPart") and 
+						v.Character:FindFirstChild("Humanoid") and 
+						v.Character:FindFirstChild("Humanoid").Health ~= 0 then
+
+						if settings_tbl.ESP_TeamCheck == false then
+
+							local char = v.Character 
+
+							for k,b in next, char:GetChildren() do 
+
+								if b:IsA("BasePart") and 
+									b.Transparency ~= 1 then
+
+									if settings_tbl.Chams then
+
+										if not b:FindFirstChild("Glow") and
+											not b:FindFirstChild("Chams") then
+
+											local chams_box = Instance.new("BoxHandleAdornment", b)
+											chams_box.Name = "Chams"
+											chams_box.AlwaysOnTop = true 
+											chams_box.ZIndex = 4 
+											chams_box.Adornee = b 
+											chams_box.Color3 = settings_tbl.Chams_Color
+											chams_box.Transparency = settings_tbl.Chams_Transparency
+											chams_box.Size = b.Size + Vector3.new(0.02, 0.02, 0.02)
+
+											local glow_box = Instance.new("BoxHandleAdornment", b)
+											glow_box.Name = "Glow"
+											glow_box.AlwaysOnTop = false 
+											glow_box.ZIndex = 3 
+											glow_box.Adornee = b 
+											glow_box.Color3 = settings_tbl.Chams_Glow_Color
+											glow_box.Transparency = settings_tbl.Glow_Transparency
+											glow_box.Size = chams_box.Size + Vector3.new(0.13, 0.13, 0.13)
+
+										end
+
+									else
+
+										destroy_chams(char)
+
+									end
+
+								end
+
+							end
+
+						else
+
+							if v.Team == Client.Team then
+								destroy_chams(v.Character)
+							end
+
+						end
+
+					else
+
+						destroy_chams(v.Character)
+
+					end
+
+				end
+		end
+	else
+			for k,v in next, HeatTarget:GetPlayers() do 
 				if v.Character and
 					v.Character:FindFirstChild("HumanoidRootPart") and 
 					v.Character:FindFirstChild("Humanoid") and 
@@ -156,17 +254,17 @@ RunService.Heartbeat:Connect(function()
 					destroy_chams(v.Character)
 
 				end
-		end
-
+			end
+	end
 	else 
 
 		for k,v in next, HeatTarget:GetPlayers() do 
 
 			if
 				v.Character and 
-				v.Character:FindFirstChild("HumanoidRootPart") and 
-				v.Character:FindFirstChild("Humanoid") and 
-				v.Character:FindFirstChild("Humanoid").Health ~= 0 then
+					v.Character:FindFirstChild("HumanoidRootPart") and 
+					v.Character:FindFirstChild("Humanoid") and 
+					v.Character:FindFirstChild("Humanoid").Health ~= 0 then
 
 				destroy_chams(v.Character)
 
@@ -221,7 +319,7 @@ local function BHHY_fake_script() -- TextButton.LocalScript
 				end
 				Last.Visible = false
 			end					
-		
+
 		else if Thermal == true then
 				Thermal = false
 				settings_tbl.ESP_Enabled = Thermal
