@@ -2,10 +2,6 @@
 -- Version: 3.2
 
 -- Instances:
-local inst = game.CoreGui:FindFirstChild("MercThermal")
-inst:Destroy()
-	
-
 local ScreenGui = Instance.new("ScreenGui")
 local Vision = Instance.new("Frame")
 local TextLabel = Instance.new("TextLabel")
@@ -121,7 +117,7 @@ local settings_tbl = {
 
 function destroy_chams(char)
 
-	for k,v in next, char:GetChildren() do 
+	for k,v in pairs(char:GetChildren()) do 
 
 		if v:IsA("BasePart") and v.Transparency ~= 1 then
 
@@ -144,7 +140,6 @@ RunService.Heartbeat:Connect(function()
 	 if isFPS == true then
 		for k,v in pairs(HeatTarget:GetPlayers()) do 
 				if v ~= Client then
-
 					if v.Character and
 						v.Character:FindFirstChild("HumanoidRootPart") and 
 						v.Character:FindFirstChild("Humanoid") and 
